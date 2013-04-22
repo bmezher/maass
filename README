@@ -1,0 +1,100 @@
+FILES INCLUDED:
+readme.txt -- this file
+maass.gp -- subroutines to evaluate a Maass form at a given point z = [x1, 
+x2, x3, y1, y2]
+hecke.gp -- subroutines to compute A[m,n] from A[1,p] using Hecke 
+operators
+fundDomain.gp -- subroutines to compute the pullback of a point z in the 
+generalized upper half-plane to the fundamental domain
+mellinInvMethod.gp -- subroutines to compute Whittaker functions using 
+Mellin inversion method
+whittaker.gp -- subroutines to compute Whittaker functions using series 
+expansion/Stade's formula
+coeff9x9.txt -- example of a data file, coefficients of a Maass form for 
+SL(3,Z) (lift of a SL(2,Z) form from 
+http://www2.math.uu.se/research/archive/astrombe/emaass/psl2z/coeff9)
+
+See below for details of usage and chosen normalization (see paper for 
+details).
+
+USAGE (from the PARI/GP shell):
+
+ ---- whittaker.gp ----
+\r whittaker.gp
+\\ initialize with the vector r = [r1,r2]
+whittakerInit([13,15]);
+\\ initialize with eigenvalue of lifted form
+whittakerInit(makerfromlift(9.5336))
+
+\\ compute Whittaker function at [y1,y2]
+
+\\ ... using the method chosen automatically
+whittaker([1,1])
+\\ %16 = 0.3944246718378011969849485 + 1.096848879 E-28*I
+
+\\ ... using Stade's formula
+whittakerStade([1,1])
+\\ %17 = 0.3944246718378011969849477 + 0.E-29*I
+
+\\ ... using Polynomial series expansion (see paper); good for y1 small
+whittakerPoly([1,1])
+\\ %18 = 0.3944246718378011969849485 - 1.096848879 E-28*I
+
+\\ ... using Taylor series expansion; good for y1,y2 small
+whittakerSeries([1,1])
+\\ %19 = 0.3944246718378011969849485 - 3.038187265 E-28*I
+
+ ---- mellinInvMethod.gp ----
+\r mellinInvMethod.gp
+\\ initialize with the vector r = [r1,r2] or lifted:
+mellinSetup(makerfromlift(9.5336));
+
+\\ pre-compute integration weights for a fixed determinant, D = y1^2*y2
+computeWeights(1);
+
+\\ evaluate W_D(y2) = W(sqrt(D/y2),y1)
+whittakerEvaluate(1) 
+\\ %8 = 0.3944246718378011969837254027 + 1.779064953412873927694411223 
+E-22*I
+whittakerEvaluate(3)
+\\ %9 = 11.71546631208770876078226046 - 2.765681856601800815912250956 
+E-23*I
+
+ ---- maass.gp ----
+\\ there are a lot of global variables that this relies on,
+\\ including loading the coefficients of a Maass form, initializing 
+\\ Whittaker function computations, etc. 
+\\ See the top portion of the code for an example using a lifted form
+\r maass.gp
+
+\\ maassF(xx,yy) evaluates F(z), a GL(3) maass form
+\\ xx = [x[1],x[2],x[3]]; yy = [y[1],y[2]]
+\\     (1  x[1]  x[3]) (y[1]y[2]  0   0)
+\\ z = (0   1    x[1]) (   0    y[1]  0)
+\\     (0   0     1  ) (   0      0   0)
+maassF([0.2,0.4,-0.1],[0.95,0.9])                                       
+\\ %4 = -13.05875026599127557016797684 - 5.780817030355984268381319329 
+E-19*I
+maassF([-0.3618037135278514588859416, 0.2261803788521345773254170, 
+0.2122015915119363395225464], [0.8991891034147030645139760, 
+1.097907143847757925844585])
+\\ %5 = -13.05875026034939759718880606 - 8.206297983678092940592056473 
+E-19*I
+
+ ---- fundDomain.gp ----
+\r fundDomain.gp
+flipBack([[0.2,0.4,-0.1],[0.95,0.9]])
+\\ %1 = [[-0.3618037135278514588859416, 0.2261803788521345773254170, 
+0.2122015915119363395225464], [0.8991891034147030645139760, 
+1.097907143847757925844585]]
+
+
+NORMALIZATIONS:
+See below, and refer to paper for details
+(1) The eigenvalue parameter is r=[r1,r2], where r1,r2 are such that the 
+gamma factors in the functional equation of the L-function are of the form 
+gamma((s-(-r1-2*r2)*I)/2)*gamma((s-(r2-r1)*I)/2)*gamma((s-(r2+2*r1)*I)/2)
+(2) All Whittaker subroutines compute W(y1,y2) = 
+scaling_factor*Whittaker(2*Pi*y1,2*pi*y2), with scaling_factor = 
+exp(1.5*Pi*(r1+r2))
+
